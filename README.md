@@ -16,3 +16,5 @@ override.tf.json - игнорировать конкретный файл overri
 
 .terraformrc - игнорировать конкретно .terraformrc
 terraform.rc - игнорировать конкретно terraform.rc
+
+Добавил новую ветку fix
