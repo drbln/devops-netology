@@ -86,7 +86,8 @@ do
 	if (($? !=0))
 	then
 		echo “192.168.0.1” >> log.txt
-	else 
+	else
+		echo "192.168.0.1" >> error.txt 
 		break
 	fi
 
@@ -95,6 +96,7 @@ do
 	then
 		echo “173.194.222.113” >> log.txt
 	else 
+		echo "173.194.222.113" >> error.txt
 		break
 	fi
 
@@ -103,6 +105,7 @@ do
 	then
 		echo “87.250.250.242” >> log.txt
 	else 
+		echo "87.250.250.242" >> error.txt
 		break
 	fi	
 done
