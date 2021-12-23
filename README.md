@@ -40,7 +40,7 @@ do
         curl https://localhost:4757
         if (($? != 0))
         then
-                date >> curl.log
+                date > curl.log
 	    else 
 		break
         fi
@@ -51,27 +51,23 @@ done
 
 ### Ваш скрипт:
 ```bash
+#!/usr/bin/env bash
+array_addr=(192.168.0.1 173.194.222.113 87.250.250.242)
 array_int=(0 1 2 3 4)
-for I in ${array_int[@]
+array_int2=${!array_addr[@]}
+for I in ${array_int[@]}
 do
-	curl http://192.168.0.1
-	if (($? !=0))
-	then
-		echo “192.168.0.1” >> log.txt
-	fi
-
-	curl http://173.194.222.113
-	if (($? !=0))
-	then
-		echo “173.194.222.113” >> log.txt
-	fi
-
-	curl http://87.250.250.242
-	if (($? !=0))
-	then
-		echo “87.250.250.242” >> log.txt
-	fi	
+        echo "" > log.txt
+        for J in ${array_int2[@]}
+        do
+                curl ${array_addr[J]}
+                if (($? != 1))
+                then
+                        echo "${array_addr[J]}" >> log.txt
+                fi
+        done
 done
+
 ```
 
 ## Обязательная задача 3
@@ -79,34 +75,24 @@ done
 
 ### Ваш скрипт:
 ```bash
+#!/usr/bin/env bash
+array_addr=(192.168.0.1 173.194.222.113 87.250.250.242)
 array_int=(0 1 2 3 4)
-for I in ${array_int[@]
+array_int2=${!array_addr[@]}
+for I in ${array_int[@]}
 do
-	curl http://192.168.0.1
-	if (($? !=0))
-	then
-		echo “192.168.0.1” >> log.txt
-	else
-		echo "192.168.0.1" >> error.txt 
-		break
-	fi
-
-	curl http://173.194.222.113
-	if (($? !=0))
-	then
-		echo “173.194.222.113” >> log.txt
-	else 
-		echo "173.194.222.113" >> error.txt
-		break
-	fi
-
-	curl http://87.250.250.242
-	if (($? !=0))
-	then
-		echo “87.250.250.242” >> log.txt
-	else 
-		echo "87.250.250.242" >> error.txt
-		break
-	fi	
+        echo "" > log.txt
+        echo "" > error.txt
+        for J in ${array_int2[@]}
+        do
+                curl ${array_addr[J]}
+                if (($? != 0))
+                then
+                        echo "${array_addr[J]}" >> error.txt
+                        break
+                else
+                        echo "${array_addr[J]}" >> log.txt
+                fi
+        done
 done
 ```
