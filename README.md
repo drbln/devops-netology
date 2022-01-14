@@ -62,7 +62,6 @@ while 1 == 1:
     with open('addr.yaml', 'w') as ym1:
         ym1.write(yaml.dump(addr))
     time.sleep(3)
-~                         
 ```
 
 ### Вывод скрипта при запуске при тестировании:
