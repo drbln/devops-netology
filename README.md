@@ -14,11 +14,11 @@ rudnev@it-ubuntu:~/repo/devops-netology/src/packer$ yc compute image list
 ## Задание 2
 
 <p align="center">
-  <img width="2475" height="980" src="./assets/1.png">
+  <img width="1200" height="600" src="./assets/1.png">
 </p>
 
 ## Задание 3
 
 <p align="center">
-  <img width="2475" height="980" src="./assets/2.png">
+  <img width="1200" height="600" src="./assets/2.png">
 </p>
