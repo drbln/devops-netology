@@ -25,7 +25,7 @@ pj77t069rwgojrdfl13iew3n2     node05.netology.yc   Ready     Active             
 4nejf0s4ra56oovnnfj52bfkl     node06.netology.yc   Ready     Active                          20.10.14
 ```
 <p align="center">
-  <img width="1200" height="600" src="./assets/1.png">
+  <img width="1200" height="600" src="./assets/3.png">
 </p>
 
 ## Задача 3
@@ -44,5 +44,5 @@ jhzn1sce7wrn   swarm_monitoring_unsee              replicated   1/1        cloud
 ```
 
 <p align="center">
-  <img width="1200" height="600" src="./assets/2.png">
+  <img width="1200" height="600" src="./assets/4.png">
 </p>
