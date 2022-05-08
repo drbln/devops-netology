@@ -1,217 +1,153 @@
-# Домашнее задание к занятию "6.2. SQL"
+# Домашнее задание к занятию "6.3. MySQL"
 
 ## Задача 1
 
 ~~~
-docker pull postgres:12
+sudo docker pull mysql:8.0
 
-C:\Users\o.rudnev>docker volume create vol1
-vol1
+sudo docker volume create mysql
 
-C:\Users\o.rudnev>docker volume create vol2
-vol2
+sudo docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=mysql -ti -p 3306:3306 -v mysql:/etc/mysql/ mysql:8.0
 
-docker run -d -it -e POSTGRES_PASSWORD=postgres -v vol1:/var/lib/postgresql/data -v vol2:/var/lib/postgresql -p 5432:5432 --name postgres postgres:12
-9456d559732ef544c2483659a328b2f44299cd6ce33277df0505ed1c1c7690e0
+sudo docker exec -it  mysql bash
 
+mysql -u root -p test_db < test_dump.sql
+~~~
+
+~~~
+Статус БД
+mysql> \s
+--------------
+mysql  Ver 8.0.29 for Linux on x86_64 (MySQL Community Server - GPL)
+
+Connection id:		34
+Current database:	test_db
+Current user:		root@localhost
+SSL:			Not in use
+Current pager:		stdout
+Using outfile:		''
+Using delimiter:	;
+Server version:		8.0.29 MySQL Community Server - GPL
+Protocol version:	10
+Connection:		Localhost via UNIX socket
+Server characterset:	utf8mb4
+Db     characterset:	utf8mb4
+Client characterset:	latin1
+Conn.  characterset:	latin1
+UNIX socket:		/var/run/mysqld/mysqld.sock
+Binary data as:		Hexadecimal
+Uptime:			49 min 33 sec
+~~~
+
+~~~
+USE test_db
+mysql> SHOW TABLES;
++-------------------+
+| Tables_in_test_db |
++-------------------+
+| orders            |
++-------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM orders WHERE price > 300
+    -> ;
++----------+
+| COUNT(*) |
++----------+
+|        1 |
++----------+
+1 row in set (0.00 sec)
 ~~~
 
 ## Задача 2
 
 ~~~
-docker exec -it postgres psql -U postgres
+mysql> CREATE USER 'test'@'localhost' IDENTIFIED BY 'test-pass';
+Query OK, 0 rows affected (0.15 sec)
 
-postgres=# CREATE ROLE "test-admin-user" SUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN
-postgres-# ;
-CREATE ROLE
-postgres=# CREATE DATABASE test_db
-postgres-# ;
-CREATE DATABASE
+mysql> ALTER USER 'test'@'localhost' ATTRIBUTE '{"fname":"James", "lname":"Pretty"}';
+Query OK, 0 rows affected (0.12 sec)
 
-postgres=# \c test_db
+mysql> ALTER USER 'test'@'localhost'
+    -> IDENTIFIED BY 'test-pass'
+    -> WITH
+    -> MAX_QUERIES_PER_HOUR 100
+    -> PASSWORD EXPIRE INTERVAL 180 DAY
+    -> FAILED_LOGIN_ATTEMPTS 3 PASSWORD_LOCK_TIME 2;
+Query OK, 0 rows affected (0.25 sec)
 
-test_db=# CREATE TABLE orders (id SERIAL PRIMARY KEY, name TEXT, price INTEGER)
-;
-CREATE TABLE
+mysql> GRANT Select ON test_db.orders TO 'test'@'localhost';
+Query OK, 0 rows affected, 1 warning (0.24 sec)
 
-test_db=# CREATE TABLE clients
-(
-id SERIAL PRIMARY KEY,
-lastmane TEXT,
-county TEXT,
-booking INTEGER,
-FOREIGN KEY (booking) REFERENCES orders (id)
-)
-;
-CREATE TABLE
+mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
++------+-----------+---------------------------------------+
+| USER | HOST      | ATTRIBUTE                             |
++------+-----------+---------------------------------------+
+| test | localhost | {"fname": "James", "lname": "Pretty"} |
++------+-----------+---------------------------------------+
+1 row in set (0.00 sec)
 
-test_db=# CREATE ROLE "test-simple-user" NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN;
-CREATE ROLE
-
-test_db=# GRANT SELECT ON TABLE clients TO "test-simple-user";
-GRANT
-test_db=# GRANT INSERT ON TABLE clients TO "test-simple-user";
-GRANT
-test_db=# GRANT UPDATE ON TABLE clients TO "test-simple-user";
-GRANT
-test_db=# GRANT DELETE ON TABLE clients TO "test-simple-user";
-GRANT
-
-test_db=# GRANT SELECT ON TABLE orders TO "test-simple-user";
-GRANT
-test_db=# GRANT INSERT ON TABLE orders TO "test-simple-user";
-GRANT
-test_db=# GRANT UPDATE ON TABLE orders TO "test-simple-user";
-GRANT
-test_db=# GRANT DELETE ON TABLE orders TO "test-simple-user";
-GRANT
-~~~
-
-~~~
-test_db=# \l
-                                 List of databases
-   Name    |  Owner   | Encoding |  Collate   |   Ctype    |   Access privileges
------------+----------+----------+------------+------------+-----------------------
- postgres  | postgres | UTF8     | en_US.utf8 | en_US.utf8 |
- template0 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | =c/postgres          +
-           |          |          |            |            | postgres=CTc/postgres
- template1 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | =c/postgres          +
-           |          |          |            |            | postgres=CTc/postgres
- test_db   | postgres | UTF8     | en_US.utf8 | en_US.utf8 |
-(4 rows)
-
-~~~
-
-~~~
-test_db=# \dt
-          List of relations
- Schema |  Name   | Type  |  Owner
---------+---------+-------+----------
- public | clients | table | postgres
- public | orders  | table | postgres
-(2 rows)
-~~~
-
-~~~
-test_db=# \du
-                                       List of roles
-    Role name     |                         Attributes                         | Member of
-------------------+------------------------------------------------------------+-----------
- postgres         | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
- test-admin-user  | Superuser, No inheritance                                  | {}
- test-simple-user | No inheritance                                             | {}
-
-~~~
-
-~~~
-test_db=# SELECT * FROM information_schema.table_privileges WHERE grantee in ('test-admin-user', 'test-simple-user');
- grantor  |     grantee      | table_catalog | table_schema | table_name | privilege_type | is_grantable | with_hierarchy
-----------+------------------+---------------+--------------+------------+----------------+--------------+----------------
- postgres | test-simple-user | test_db       | public       | clients    | INSERT         | NO           | NO
- postgres | test-simple-user | test_db       | public       | clients    | SELECT         | NO           | YES
- postgres | test-simple-user | test_db       | public       | clients    | UPDATE         | NO           | NO
- postgres | test-simple-user | test_db       | public       | clients    | DELETE         | NO           | NO
- postgres | test-simple-user | test_db       | public       | orders     | INSERT         | NO           | NO
- postgres | test-simple-user | test_db       | public       | orders     | SELECT         | NO           | YES
- postgres | test-simple-user | test_db       | public       | orders     | UPDATE         | NO           | NO
- postgres | test-simple-user | test_db       | public       | orders     | DELETE         | NO           | NO
-(8 rows)
 ~~~
 
 ## Задача 3
 
 ~~~
-test_db=# INSERT INTO orders VALUES (1, 'Шоколад', 10), (2, 'Принтер', 3000), (3, 'Книга', 500), (4, 'Монитор', 7000), (5, 'Гитара', 4000);
-INSERT 0 5
+mysql> set profiling=1;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
 
-test_db=# INSERT INTO clients VALUES (1, 'Иванов Иван Иванович', 'USA'), (2, 'Петров Петр Петрович','Canada'), (3, 'Иоганн Себастьян Бах','Japan'),
-(4, 'Ронни Джеймс Дио', 'Russia'), (5, 'Ritchie Blackmore', 'Russia');
-INSERT 0 5
-~~~
+mysql> SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc;
++------------+--------+------------+------------+-------------+--------------+
+| TABLE_NAME | ENGINE | ROW_FORMAT | TABLE_ROWS | DATA_LENGTH | INDEX_LENGTH |
++------------+--------+------------+------------+-------------+--------------+
+| orders     | InnoDB | Dynamic    |          5 |       16384 |            0 |
++------------+--------+------------+------------+-------------+--------------+
+1 row in set (0.09 sec)
 
-~~~
-test_db=# SELECT COUNT(*) FROM orders;
- count
--------
-     5
-(1 row)
+mysql> ALTER TABLE orders ENGINE = MyISAM;
+Query OK, 5 rows affected (1.68 sec)
+Records: 5  Duplicates: 0  Warnings: 0
 
-test_db=# SELECT COUNT(*) FROM clients;
- count
--------
-     5
-(1 row)
+mysql> ALTER TABLE orders ENGINE = InnoDB;
+Query OK, 5 rows affected (2.98 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> show profiles;
++----------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Query_ID | Duration   | Query                                                                                                                                                                                |
++----------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|        1 | 0.08693750 | SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc |
+|        2 | 1.68055650 | ALTER TABLE orders ENGINE = MyISAM                                                                                                                                                   |
+|        3 | 2.97891975 | ALTER TABLE orders ENGINE = InnoDB                                                                                                                                                   |
++----------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+3 rows in set, 1 warning (0.00 sec)
+
 ~~~
 
 ## Задача 4
 
 ~~~
-test_db=# UPDATE clients SET booking = 3 WHERE id = 1;
-UPDATE 1
-test_db=# UPDATE clients SET booking = 4 WHERE id = 2;
-UPDATE 1
-test_db=# UPDATE clients SET booking = 5 WHERE id = 3;
-UPDATE 1
+[mysqld]
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+secure-file-priv= NULL
 
-test_db=# SELECT * FROM clients WHERE booking is not null;
- id |       lastmane       | county | booking
-----+----------------------+--------+---------
-  1 | Иванов Иван Иванович | USA    |       3
-  2 | Петров Петр Петрович | Canada |       4
-  3 | Иоганн Себастьян Бах | Japan  |       5
-(3 rows)
-~~~
+#Set IO Speed
+# 0 - скорость
+# 1 - сохранность
+# 2 - универсальный параметр
+innodb_flush_log_at_trx_commit = 0
 
-## Задача 5
+#Set compression
+# Barracuda - формат файла с сжатием
+innodb_file_format=Barracuda
 
-~~~
-test_db=# EXPLAIN SELECT * FROM clients WHERE booking is not null;
-                        QUERY PLAN
------------------------------------------------------------
- Seq Scan on clients  (cost=0.00..18.10 rows=806 width=72)
-   Filter: (booking IS NOT NULL)
-(2 rows)
+#Set buffer
+innodb_log_buffer_size	= 1M
 
-Показывает стоимость(нагрузку на исполнение) запроса , и фильтрацию по полю Booking для выборки.
-~~~
+#Set Cache size
+key_buffer_size = 640М
 
-## Задача 6
-
-~~~
-postgres@15300572a54d:~$ pg_dump test_db > backup_test_db
-
-docker run -d -it -e POSTGRES_PASSWORD=postgres -v vol1:/var/lib/postgresql/data -v vol2:/var/lib/postgresql -p 5432:5432 --name postgres2 postgres:12
-
-C:\Users\o.rudnev>docker exec -it postgres2 su - postgres
-
-postgres=# CREATE DATABASE test_db;
-CREATE DATABASE
-postgres=# \l
-                                 List of databases
-   Name    |  Owner   | Encoding |  Collate   |   Ctype    |   Access privileges
------------+----------+----------+------------+------------+-----------------------
- postgres  | postgres | UTF8     | en_US.utf8 | en_US.utf8 |
- template0 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | =c/postgres          +
-           |          |          |            |            | postgres=CTc/postgres
- template1 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | =c/postgres          +
-           |          |          |            |            | postgres=CTc/postgres
- test_db   | postgres | UTF8     | en_US.utf8 | en_US.utf8 |
-(4 rows)
-
-postgres=# exit
-postgres@1f370e3169ef:~$ psql -f backup_test_db test_db
-
-postgres@1f370e3169ef:~$ psql
-psql (12.10 (Debian 12.10-1.pgdg110+1))
-Type "help" for help.
-
-postgres=# \c test_db
-
-test_db=# SELECT * FROM clients WHERE booking is not null;
- id |                lastmane                | county | booking
-----+----------------------------------------+--------+---------
-  1 | Иванов Иван Иванович | USA    |       3
-  2 | Петров Петр Петрович | Canada |       4
-  3 | Иоганн Себастьян Бах | Japan  |       5
-(3 rows)
+#Set log size
+max_binlog_size	= 100M
 ~~~
