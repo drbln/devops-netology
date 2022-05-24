@@ -167,7 +167,7 @@ curl -XGET localhost:9200/_cluster/health/?pretty=true
   "number_of_pending_tasks" : 0,
   "number_of_in_flight_fetch" : 0,
   "task_max_waiting_in_queue_millis" : 0,
-  "active_shards_percent_as_number" : 41.176470588235
+  "active_shards_percent_as_number" : 47.368421052631575
 ~~~
 
 ~~~
