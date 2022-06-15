@@ -1,81 +1,67 @@
-# Домашнее задание к занятию "7.5. Основы golang"
+# Домашнее задание к занятию "09.02 CI\CD"
 
-## Задача 1. Установите golang
-
-1. Воспользуйтесь инструкций с официального сайта: https://golang.org/.
-2. Так же для тестирования кода можно использовать песочницу: https://play.golang.org/.
-
-~~~
-rudnev@Mac-mini ~ % go version
-go version go1.18.3 darwin/amd64
-~~~
-
-## Задача 3. Написание кода.
-Напишите программу для перевода метров в футы (1 фут = 0.3048 метр). Можно запросить исходные данные у пользователя, а можно статически задать в коде. Для взаимодействия с пользователем можно использовать функцию Scanf:
-~~~go
-package main
-
-import "fmt"
-
-func MtoF(m float64)(f float64) {
-    f = m * 3.281
-    return
-}
-
-func main() {
-    fmt.Print("Input length in meters: ")
-    var input float64
-    fmt.Scanf("%f", &input)
-
-    output := MtoF(input)
-
-    fmt.Printf("Footage: %v\n", output)
-}
+## SonarQube
+![](src/1.png)
+![](src/2.png)
+## Nexus
+~~~xml
+<metadata modelVersion="1.1.0">
+<groupId>netology</groupId>
+<artifactId>java</artifactId>
+<versioning>
+<latest>8_282</latest>
+<release>8_282</release>
+<versions>
+<version>8_102</version>
+<version>8_282</version>
+</versions>
+<lastUpdated>20220615094216</lastUpdated>
+</versioning>
+</metadata>
 ~~~
 
-Напишите программу, которая найдет наименьший элемент в любом заданном списке, например:
+## Maven
+
+~~~xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.netology.app</groupId>
+  <artifactId>simple-app</artifactId>
+  <version>1.0-SNAPSHOT</version>
+   <repositories>
+    <repository>
+      <id>my-repo</id>
+      <name>maven-public</name>
+      <url>http://localhost:8081/repository/maven-public/</url>
+    </repository>
+  </repositories>
+  <dependencies>
+     <dependency>
+      <groupId>netology</groupId>
+      <artifactId>java</artifactId>
+      <version>8_282</version>
+      <classifier>distrib</classifier>
+      <type>tar.gz</type>
+    </dependency>
+  </dependencies>
+</project>
 ~~~
-x := []int{48,96,86,68,57,82,63,70,37,34,83,27,19,97,9,17,}
-~~~
-
-~~~go
-package main
-
-import "fmt"
-import "sort"
-
-func GetMin (toSort []int)(minNum int) {
-	sort.Ints(toSort)
-	minNum = toSort[0]
-	return
-}
-
-func main() {
-	x := []int{48,96,86,68,57,82,63,70,37,34,83,27,19,97,9,17,}
-	y := GetMin(x)
-	fmt.Printf("The smallest number in the list: %v\n", y)
-}
-~~~
-
-Напишите программу, которая выводит числа от 1 до 100, которые делятся на 3. То есть (3, 6, 9, …).
-
-~~~go
-package main
-
-import "fmt"
-
-func FilterList ()(devidedWithNoReminder []int) {
-	for i := 1;  i <= 100; i ++ {
-		if	i % 3 == 0 {
-			devidedWithNoReminder = append(devidedWithNoReminder, i)
-		}
-	}
-	return
-}
-
-func main() {
-	toPrint := FilterList()
-	fmt.Printf("Числа от 1 до 100, которые делятся на 3: %v\n", toPrint)
-}
 
 ~~~
+rudnev@MN38-NB-OPIK5 mvn % pushd ~/.m2/repository/
+~/.m2/repository ~/Documents/repo/mnt-homeworks/09-ci-02-cicd/mvn
+rudnev@MN38-NB-OPIK5 repository % ls -l
+total 0
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 backport-util-concurrent
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 classworlds
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 com
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 commons-cli
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 commons-lang
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 commons-logging
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 junit
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 log4j
+drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 netology
+drwxr-xr-x  6 rudnev  staff  192 15 июн 12:57 org
+~~
