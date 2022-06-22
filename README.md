@@ -1,67 +1,244 @@
-# Домашнее задание к занятию "09.02 CI\CD"
+# Домашнее задание к занятию "08.01 Введение в Ansible"
 
-## SonarQube
-![](src/1.png)
-![](src/2.png)
-## Nexus
-~~~xml
-<metadata modelVersion="1.1.0">
-<groupId>netology</groupId>
-<artifactId>java</artifactId>
-<versioning>
-<latest>8_282</latest>
-<release>8_282</release>
-<versions>
-<version>8_102</version>
-<version>8_282</version>
-</versions>
-<lastUpdated>20220615094216</lastUpdated>
-</versioning>
-</metadata>
-~~~
-
-## Maven
-
-~~~xml
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <groupId>com.netology.app</groupId>
-  <artifactId>simple-app</artifactId>
-  <version>1.0-SNAPSHOT</version>
-   <repositories>
-    <repository>
-      <id>my-repo</id>
-      <name>maven-public</name>
-      <url>http://localhost:8081/repository/maven-public/</url>
-    </repository>
-  </repositories>
-  <dependencies>
-     <dependency>
-      <groupId>netology</groupId>
-      <artifactId>java</artifactId>
-      <version>8_282</version>
-      <classifier>distrib</classifier>
-      <type>tar.gz</type>
-    </dependency>
-  </dependencies>
-</project>
-~~~
+## Подготовка к выполнению
 
 ~~~
-rudnev@MN38-NB-OPIK5 mvn % pushd ~/.m2/repository/
-~/.m2/repository ~/Documents/repo/mnt-homeworks/09-ci-02-cicd/mvn
-rudnev@MN38-NB-OPIK5 repository % ls -l
-total 0
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 backport-util-concurrent
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 classworlds
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 com
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 commons-cli
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 commons-lang
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 commons-logging
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 junit
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 log4j
-drwxr-xr-x  3 rudnev  staff   96 15 июн 12:57 netology
-drwxr-xr-x  6 rudnev  staff  192 15 июн 12:57 org
-~~
+rudnev@it-mgrn devops-netology % ansible --version
+ansible [core 2.12.6]
+  config file = None
+  configured module search path = ['/Users/rudnev/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/ansible
+  ansible collection location = /Users/rudnev/.ansible/collections:/usr/share/ansible/collections
+  executable location = /Library/Frameworks/Python.framework/Versions/3.10/bin/ansible
+  python version = 3.10.4 (v3.10.4:9d38120e33, Mar 23 2022, 17:29:05) [Clang 13.0.0 (clang-1300.0.29.30)]
+  jinja version = 3.1.2
+  libyaml = True
+
+~~~
+
+1. Попробуйте запустить playbook на окружении из `test.yml`, зафиксируйте какое значение имеет факт `some_fact` для указанного хоста при выполнении playbook'a.
+~~~
+rudnev@it-mgrn playbook % ansible-playbook -i inventory/test.yml site.yml
+
+PLAY [Print os facts] ******************************************************************************************************************************************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************************************************************************************************************************************************************************************************************************
+[WARNING]: Platform darwin on host localhost is using the discovered Python interpreter at /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10, but future installation of another Python interpreter could change the meaning of that path. See https://docs.ansible.com/ansible-
+core/2.12/reference_appendices/interpreter_discovery.html for more information.
+ok: [localhost]
+
+TASK [Print OS] ************************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [localhost] => {
+    "msg": "MacOSX"
+}
+
+TASK [Print fact] **********************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [localhost] => {
+    "msg": 12
+}
+
+PLAY RECAP *****************************************************************************************************************************************************************************************************************************************************************************************************************
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+~~~
+
+2. Найдите файл с переменными (group_vars) в котором задаётся найденное в первом пункте значение и поменяйте его на 'all default fact'.
+
+~~~
+rudnev@it-mgrn playbook % ansible-playbook -i inventory/test.yml site.yml
+
+PLAY [Print os facts] ******************************************************************************************************************************************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************************************************************************************************************************************************************************************************************************
+[WARNING]: Platform darwin on host localhost is using the discovered Python interpreter at /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10, but future installation of another Python interpreter could change the meaning of that path. See https://docs.ansible.com/ansible-
+core/2.12/reference_appendices/interpreter_discovery.html for more information.
+ok: [localhost]
+
+TASK [Print OS] ************************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [localhost] => {
+    "msg": "MacOSX"
+}
+
+TASK [Print fact] **********************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [localhost] => {
+    "msg": "all default fact"
+}
+
+PLAY RECAP *****************************************************************************************************************************************************************************************************************************************************************************************************************
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+rudnev@it-mgrn playbook %
+~~~
+
+4. Проведите запуск playbook на окружении из `prod.yml`. Зафиксируйте полученные значения `some_fact` для каждого из `managed host`.
+
+~~~
+rudnev@it-mgrn playbook % ansible-playbook -i inventory/prod.yml site.yml
+
+PLAY [Print os facts] ******************************************************************************************************************************************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] ************************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] **********************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el"
+}
+ok: [ubuntu] => {
+    "msg": "deb"
+}
+
+PLAY RECAP *****************************************************************************************************************************************************************************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+rudnev@it-mgrn playbook %
+~~~
+
+5.  Добавьте факты в `group_vars` каждой из групп хостов так, чтобы для `some_fact` получились следующие значения: для `deb` - 'deb default fact', для `el` - 'el default fact'.
+6.  Повторите запуск playbook на окружении `prod.yml`. Убедитесь, что выдаются корректные значения для всех хостов.
+~~~
+rudnev@it-mgrn playbook % ansible-playbook -i inventory/prod.yml site.yml
+
+PLAY [Print os facts] ******************************************************************************************************************************************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] ************************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] **********************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+
+PLAY RECAP *****************************************************************************************************************************************************************************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+rudnev@it-mgrn playbook %
+~~~
+
+7. При помощи `ansible-vault` зашифруйте факты в `group_vars/deb` и `group_vars/el` с паролем `netology`.
+
+~~~
+rudnev@it-mgrn playbook % ansible-vault encrypt group_vars/deb/examp.yml
+New Vault password:
+Confirm New Vault password:
+Encryption successful
+rudnev@it-mgrn playbook % ansible-vault encrypt group_vars/el/examp.yml
+New Vault password:
+Confirm New Vault password:
+Encryption successful
+rudnev@it-mgrn playbook %
+~~~
+
+8. Запустите playbook на окружении `prod.yml`. При запуске `ansible` должен запросить у вас пароль. Убедитесь в работоспособности.
+
+~~~
+rudnev@it-mgrn playbook % ansible-playbook -i inventory/prod.yml site.yml --ask-vault-pass
+Vault password:
+
+PLAY [Print os facts] ******************************************************************************************************************************************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] ************************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] **********************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+
+PLAY RECAP *****************************************************************************************************************************************************************************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+~~~
+
+10. В `prod.yml` добавьте новую группу хостов с именем  `local`, в ней разместите localhost с необходимым типом подключения.
+
+~~~
+el:
+    hosts:
+      centos7:
+        ansible_connection: docker
+  deb:
+    hosts:
+      ubuntu:
+        ansible_connection: docker
+  local:
+    hosts:
+      localhost:
+        ansible_connection: local
+~~~
+11. Запустите playbook на окружении `prod.yml`. При запуске `ansible` должен запросить у вас пароль. Убедитесь что факты `some_fact` для каждого из хостов определены из верных `group_vars`.
+~~~
+rudnev@it-mgrn playbook % ansible-playbook -i inventory/prod.yml site.yml --ask-vault-pass
+Vault password:
+
+PLAY [Print os facts] ******************************************************************************************************************************************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [ubuntu]
+[WARNING]: Platform darwin on host localhost is using the discovered Python interpreter at /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10, but future installation of another Python interpreter could change the meaning of that path. See https://docs.ansible.com/ansible-
+core/2.12/reference_appendices/interpreter_discovery.html for more information.
+ok: [localhost]
+ok: [centos7]
+
+TASK [Print OS] ************************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+ok: [localhost] => {
+    "msg": "MacOSX"
+}
+
+TASK [Print fact] **********************************************************************************************************************************************************************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+ok: [localhost] => {
+    "msg": "all default fact"
+}
+
+PLAY RECAP *****************************************************************************************************************************************************************************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+~~~
